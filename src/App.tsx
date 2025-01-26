@@ -1,35 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
-
+import React, { useEffect, useRef, useState } from 'react'
 
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
 
-type Token = {
-    address: string,
-    name: string,
-    capital?: number,
-}
+import { networks } from './config';
 
-type TokensPair = {
-    pairAddress: string,
-    baseToken: Token,
-    quoteToken: Token,
-}
-
-type Wallet = {
-    network: string,
-    privateKey: string,
-    address: string,
-}
-
-type Network = {
-    slug: string,
-    name: string,
-    symbol: string,
-    wrapAddress: string,
-}
-
-type NetworkName = keyof typeof networks;
+import type { NetworkName, Token, TokensPair, Wallet } from './types';
+import { DexscreenerTokensPair } from './dexscreener.types';
 
 
 const examplePairs: TokensPair[] = [
@@ -45,24 +22,21 @@ const examplePairs: TokensPair[] = [
     },
 ];
 
-const networks: Record<string, Network> = {
-    solana: { slug: 'solana', name: 'Solana', symbol: 'SOL', wrapAddress: 'So11111111111111111111111111111111111111112' }
-};
-
 
 async function fetchCurrencyPrice(network: NetworkName) {
     const tokenAddress = networks[network].wrapAddress;
     const url = `https://api.dexscreener.com/tokens/v1/${network}/${tokenAddress}`;
 
-    // ex: https://api.dexscreener.com/tokens/v1//solana/So11111111111111111111111111111111111111112
+    // ex: https://api.dexscreener.com/tokens/v1/solana/So11111111111111111111111111111111111111112
 
     if (! network) return 0;
 
     return fetch(url)
         .then((response) => response.json())
         .then((results) => {
-            return results.filter((result: any) => result.chainId === network)
-                .map((result: any) => {
+            return results
+                .filter((result: DexscreenerTokensPair) => result.chainId === network)
+                .map((result: DexscreenerTokensPair) => {
                     return Number(result.priceUsd);
                 })
                 .at(0);
@@ -85,12 +59,18 @@ async function fetchTrendsPairs(network: NetworkName, tokensAddresses: string[])
     return fetch(url)
         .then((response) => response.json())
         .then((results) => {
-            return results.filter((result: any) => result.chainId === network)
-                .map((result: any) => {
+            return results
+                .filter((result: DexscreenerTokensPair) => result.chainId === network)
+                .map((result: DexscreenerTokensPair) => {
                     return {
                         pairAddress: result.pairAddress,
                         baseToken: { name: result.baseToken.name, address: result.baseToken.address },
                         quoteToken: { name: result.baseToken.name, address: result.quoteToken.address },
+                        stats: {
+                            txnsM5: result.txns.m5.buys + result.txns.m5.sells,
+                            volumeM5: result.volume.m5,
+                            priceChangeM5: result.priceChange.m5,
+                        },
                     } as TokensPair;
                 });
         })
@@ -130,15 +110,6 @@ async function fetchBalance(network: NetworkName, wallet: Wallet): Promise<numbe
 }
 
 
-async function startGame(tokensPair: TokensPair) {
-
-}
-
-
-async function stopGame(tokensPair: TokensPair) {
-
-}
-
 
 function App() {
     const [network, setNetwork] = useState<NetworkName>('solana');
@@ -149,12 +120,14 @@ function App() {
     const [wallet, setWallet] = useState<Wallet | null>(null);
     const [balance, setBalance] = useState(0);
 
+
     useEffect(() => {
         // network changed
 
         // fetch trends tokens
         fetchTrendsTokens(network)
             .then((tokens => {
+                //tokens = tokens.filter(token => ! token.capital || token.capital > 1000);
                 setTokensList(tokens);
             }));
 
@@ -189,6 +162,13 @@ function App() {
 
         fetchTrendsPairs(network, tokensAddresses)
             .then((tokensPairs => {
+
+                // Filter
+                tokensPairs = tokensPairs.filter(pair => pair.stats ? pair.stats.txnsM5 > 100 : true);
+
+                // Sort
+                tokensPairs.sort((a, b) => (a.stats && b.stats) ? b.stats.priceChangeM5 - a.stats.priceChangeM5 : 0);
+
                 setPairs(tokensPairs);
             }));
 
@@ -199,6 +179,7 @@ function App() {
         // wallet changed
 
         if (wallet) {
+            // Fetch balance
             fetchBalance(network, wallet)
                 .then((balance: number) => {
                     setBalance(balance);
@@ -208,6 +189,7 @@ function App() {
             setBalance(0);
         }
     }, [wallet])
+
 
     return (
         <div className='container mt-5'>
@@ -235,23 +217,13 @@ function App() {
                     <div className='d-flex flex-wrap'>
                         {pairs.map(pair => {
                             return (
-                                <div key={`${pair.baseToken.address}-${pair.quoteToken.address}`} className='card mx-1 my-3' style={{ width: '300px' }}>
-                                    <div className='d-flex my-1'>
-                                        <img src={`https://dd.dexscreener.com/ds-data/tokens/${network}/${pair.baseToken.address.toLowerCase()}.png`} alt={`${pair.baseToken.name}`} className='mx-1' />
-
-                                        <h3 className='m-1 text-truncate'>
-                                            <a href={`https://dexscreener.com/${network}/${pair.pairAddress}`} target='_blank'>
-                                                {pair.baseToken.name}
-                                            </a>
-                                        </h3>
-                                    </div>
-
-                                    <div className='my-1 text-center'>
-                                        <div className='wheel'>
-                                            <WheelOfFortune pair={pair} balance={balance} currencyPrice={currencyPrice} />
-                                        </div>
-                                    </div>
-                                </div>
+                                <SlotToken
+                                    key={`${pair.baseToken.address}-${pair.quoteToken.address}`}
+                                    network={network}
+                                    currencyPrice={currencyPrice}
+                                    pair={pair}
+                                    balance={balance}
+                                    />
                             );
                         })}
                     </div>
@@ -264,63 +236,191 @@ function App() {
 }
 
 
-const WheelOfFortune = (props: { pair: TokensPair, balance: number, currencyPrice: number }) => {
-    const { pair, balance, currencyPrice } = props;
 
-    const [isSpinning, setIsSpinning] = useState(false);
-    const [rotation, setRotation] = useState(0);
+const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensPair, balance: number}) => {
+    const pair = props.pair;
+    const network = props.network;
+    const currencyPrice = props.currencyPrice;
+    const balance = props.balance;
+
+    const wheelRef = useRef<{ startSpin: () => void, stopSpin: () => void } | null>(null);
+    const timerRemainingRef = useRef<number | null>(null);
+
     const [remainingTime, setRemainingTime] = useState(10);
     const [amount, setAmount] = useState(0);
-    const timerRef = useRef<number | null>(null);
+    const [isRunning, setIsRunning] = useState(false);
+
+
+    const startGame = async (duration=30) => {
+        setIsRunning(true);
+        setRemainingTime(duration);
+
+        if (wheelRef.current) {
+            wheelRef.current?.startSpin();
+        }
+
+        timerRemainingRef.current = setInterval(() => {
+            setRemainingTime((value) => Math.max(0, value - 1));
+        }, 1000)
+
+    }
+
+
+    const stopGame = async () => {
+        if (timerRemainingRef.current) {
+            clearInterval(timerRemainingRef.current);
+        }
+
+        if (wheelRef.current) {
+            wheelRef.current?.stopSpin();
+        }
+
+        setIsRunning(false);
+    }
+
+
+    useEffect(() => {
+        if (isRunning && remainingTime <= 0) {
+            stopGame();
+        }
+
+    }, [remainingTime])
+
+
+    return (
+        <div className='card mx-1 my-3' style={{ width: '300px' }}>
+            <div className='d-flex my-1'>
+                <img src={`https://dd.dexscreener.com/ds-data/tokens/${network}/${pair.baseToken.address.toLowerCase()}.png`} alt={`${pair.baseToken.name}`} className='mx-1' />
+
+                <h3 className='m-1 text-truncate'>
+                    <a href={`https://dexscreener.com/${network}/${pair.pairAddress}`} target='_blank'>
+                        {pair.baseToken.name}
+                    </a>
+                </h3>
+            </div>
+
+            <div className='my-1 text-center'>
+                <div className='wheel'>
+                    <WheelOfFortune ref={wheelRef} />
+                </div>
+
+                <div className='m-1 mx-2'>
+                    <div className="input-group">
+                        <span className="input-group-text">$</span>
+                        <input type="number" className="form-control" aria-label="Dollar amount (with dot and two decimal places)" min={0} step={1} value={amount} onChange={(event) => setAmount(Number(event.target.value))} />
+
+                        {isRunning && 
+                            <button
+                                onClick={() => stopGame()}
+                                className={`btn btn-outline-success ${(amount >= 1 && amount < balance * currencyPrice) ? "" : "disabled"}`}
+                                >
+                                Stop ({remainingTime} sec.)
+                            </button>
+                        }
+
+                        {!isRunning && 
+                            <button
+                            onClick={() => startGame()}
+                                className={`btn btn-outline-success ${(amount >= 1 && amount < balance * currencyPrice) ? "" : "disabled"}`}
+                                >
+                                Launch
+                            </button>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <BearishBar priceChangeM5={pair.stats?.priceChangeM5} />
+        </div>
+    );
+}
+
+
+const BearishBar = (props: { priceChangeM5?: number }) => {
+    let bearishPercent: number = 50;
+
+    if (props.priceChangeM5) {
+        if (props.priceChangeM5 < 0) {
+            if (props.priceChangeM5 < -10) {
+                bearishPercent = 5;
+
+            } else if (props.priceChangeM5 < -5) {
+                bearishPercent = 30;
+
+            } else if (props.priceChangeM5 < -2) {
+                bearishPercent = 40;
+
+            } else {
+                bearishPercent = 45;
+            }
+
+        } else if (props.priceChangeM5 > 0) {
+            if (props.priceChangeM5 > 10) {
+                bearishPercent = 95;
+
+            } else if (props.priceChangeM5 > 5) {
+                bearishPercent = 70;
+
+            } else if (props.priceChangeM5 > 2) {
+                bearishPercent = 60;
+
+            } else {
+                bearishPercent = 55;
+            }
+
+        }
+    }
+
+    return (
+        <div className='d-flex' style={{ height: "10px" }} title={`Bearish indicator: ${bearishPercent}%`}>
+            <div style={{ backgroundColor: '#d1111c', width: `${100-bearishPercent}%` }}></div>
+            <div style={{ backgroundColor: '#1fac9b', width: `${bearishPercent}%` }}></div>
+        </div>
+    );
+}
+
+
+const WheelOfFortune = React.forwardRef((props, ref) => {
+    const [isSpinning, setIsSpinning] = useState(false);
+    const [rotation, setRotation] = useState(0);
+    const intervalRef = useRef<number | null>(null); // Référence pour l'intervalle
 
     const segments = ["Prix 1", "Prix 2", "Prix 3", "Prix 4", "Prix 5", "Prix 6"];
     const segmentAngle = 360 / segments.length;
 
-    const handleSpin = () => {
-        if (isSpinning) {
-            handleStop();
-            return;
-        }
-
-        startGame(pair);
+    const startSpin = () => {
+        if (isSpinning) return;
 
         setIsSpinning(true);
-        setRemainingTime(10);
 
-        const randomRotation = Math.floor(Math.random() * 360) + 3600; // Toujours au moins 10 tours
-        setRotation((prev) => prev + randomRotation);
-
-        timerRef.current = setInterval(() => {
-            setRemainingTime((prev) => {
-                if (prev <= 1) {
-                    if (timerRef.current) {
-                        clearInterval(timerRef.current);
-                    }
-                    stopGame(pair);
-                    setIsSpinning(false);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+        // Début de la rotation avec un intervalle pour mettre à jour l'angle
+        intervalRef.current = window.setInterval(() => {
+            setRotation((prev) => prev + 5); // Augmente progressivement la rotation
+        }, 16); // Mise à jour environ 60 fois par seconde (~16ms)
     };
 
-    const handleStop = () => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-        }
-        stopGame(pair);
+    const stopSpin = () => {
+        if (!isSpinning) return;
+
         setIsSpinning(false);
-        setRemainingTime(0);
+
+        // Arrêt de l'intervalle et rotation
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+
+            // Aligne la roue sur un segment exact
+            const alignedRotation = Math.round(rotation / segmentAngle) * segmentAngle;
+            setRotation(alignedRotation);
+        }
     };
 
-    useEffect(() => {
-        return () => {
-            if (timerRef.current) {
-                clearInterval(timerRef.current);
-            }
-        };
-    }, []);
+    // Expose `startSpin` et `stopSpin` au composant parent via `ref`
+    React.useImperativeHandle(ref, () => ({
+        startSpin,
+        stopSpin,
+    }));
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-center gap-3">
@@ -330,7 +430,7 @@ const WheelOfFortune = (props: { pair: TokensPair, balance: number, currencyPric
                     width: "256px",
                     height: "256px",
                     transform: `rotate(${rotation}deg)`,
-                    transition: isSpinning ? "transform 10s cubic-bezier(0.17, 0.67, 0.83, 0.67)" : "none",
+                    transition: isSpinning ? "none" : "transform 0.5s ease-out", // Transition pour l'arrêt fluide
                 }}
             >
                 <svg width="256" height="256" viewBox="0 0 100 100" className="position-absolute top-0 start-0">
@@ -341,7 +441,7 @@ const WheelOfFortune = (props: { pair: TokensPair, balance: number, currencyPric
                         >
                             <path
                                 d={`M50 50 L50 0 A50 50 0 0 1 ${50 + 50 * Math.sin((segmentAngle * Math.PI) / 180)} ${50 - 50 * Math.cos((segmentAngle * Math.PI) / 180)} Z`}
-                                fill={index % 2 === 0 ? "#FFD700" : "#FF4500"}
+                                fill={index % 2 === 0 ? "#1fac9b" : "#d1111c"}
                             />
                             <text
                                 x="50"
@@ -358,24 +458,11 @@ const WheelOfFortune = (props: { pair: TokensPair, balance: number, currencyPric
                     ))}
                 </svg>
             </div>
-
-            <div className='m-1 mx-2'>
-                <div className="input-group">
-                    <span className="input-group-text">$</span>
-                    <input type="number" className="form-control" aria-label="Dollar amount (with dot and two decimal places)" min={0} step={1} value={amount} onChange={(event) => setAmount(Number(event.target.value))} />
-
-                    <button
-                        onClick={handleSpin}
-                        className={`btn btn-outline-success ${(amount >= 1 && amount < balance * currencyPrice) ? "" : "disabled"}`}
-                    >
-                        {isSpinning ? `Stop (${remainingTime} sec.)` : "Launch"}
-                    </button>
-                </div>
-            </div>
-
         </div>
     );
-};
+});
+
+
 
 
 export default App
