@@ -1,6 +1,6 @@
 
-//import humanTime from 'human-time'
-const humanTime = (d: Date) => d.toJSON();
+import humanTime from 'human-time';
+//const humanTime = (d: Date) => d.toJSON().slice(0, 19).replace('T', ' ');
 
 import { networks } from "./config";
 
@@ -22,7 +22,7 @@ export const EndGameModal = (props: { gamesHistory: GameHistory[], network: stri
 
                     <div className="modal-body" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
 
-                        {gamesHistory.map(gameHistory => {
+                        {[...gamesHistory].reverse().map(gameHistory => {
                             return (
                                 <div key={`${gameHistory.pairAddress}-${gameHistory.buyDate.getTime()}`}>
 

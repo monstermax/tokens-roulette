@@ -26,11 +26,11 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
     const [remainingTime, setRemainingTime] = useState(10);
     const [amountUsd, setAmountUsd] = useState(0);
     const [slotStatus, setSlotStatus] = useState<SlotStatus>('idle');
-    const [currentGame, setCurrentGame] = useState<CurrentGame>({ buyDate: null, buyPrice: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
+    const [currentGame, setCurrentGame] = useState<CurrentGame>({ buyDate: null, buyPrice: null, sellDate: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
 
     const startGame = async (duration=30) => {
         setSlotStatus('starting');
-        setCurrentGame({ buyDate: null, buyPrice: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
+        setCurrentGame({ buyDate: null, buyPrice: null, sellDate: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
 
         const inputAmountCoin = Math.round(1e9 * amountUsd / currencyPrice);
 
@@ -90,11 +90,12 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
                         throw new Error(`invalid buy result`);
                     }
 
+                    const sellDate = new Date;
                     const sellPrice = Number(tradeResult.priceUsd);
                     const sellOutputAmount = Number(tradeResult.outputAmount);
 
                     // update local states
-                    setCurrentGame((game) => ({ ...game, sellPrice, sellOutputAmount }));
+                    setCurrentGame((game) => ({ ...game, sellDate, sellPrice, sellOutputAmount }));
                     setBalance((balance) => balance += sellOutputAmount);
                     setSlotStatus('idle');
 
@@ -126,9 +127,20 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
     useEffect(() => {
         // currentGame changed
 
-        if (currentGame.buyPrice && currentGame.sellPrice && currentGame.sellOutputAmount && currentGame.buyInputAmount && currentGame.buyDate && currentGame.sellDate) {
+        if (currentGame.buyPrice && currentGame.sellPrice && currentGame.buyInputAmount && currentGame.sellOutputAmount) {
             //const diff = currentGame.sellPrice - currentGame.buyPrice;
             //const percent = 100 * diff / currentGame.buyPrice;
+
+            if (! currentGame.buyDate) {
+                console.warn(`EndGame ERROR. empty buyDate`);
+                return;
+            };
+
+            if (! currentGame.sellDate) {
+                console.warn(`EndGame ERROR. empty sellDate`);
+                return;
+            };
+
 
             const diffCoin = currentGame.sellOutputAmount - currentGame.buyInputAmount;
             const percent = 100 * diffCoin / currentGame.buyInputAmount;

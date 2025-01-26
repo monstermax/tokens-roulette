@@ -148,24 +148,31 @@ function App() {
 
                 {/* wallet */}
                 <div className='alert alert-dark'>
-                    <h2>Wallet</h2>
+                    <div className='d-flex justify-content-between'>
+                        <div>
+                            <h2>Wallet</h2>
 
-                    <div>
-                        <h3>Balance</h3>
-                        <p>
-                            <span className='me-1'>{Math.round(100 * balance / 1e9) / 100} {currencyName}</span>
-                            <small className='ms-1'>({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currencyPrice * balance / 1e9)})</small>
-                        </p>
+                            <div>
+                                <h3>Balance</h3>
+                                <p>
+                                    <span className='me-1'>{Math.round(100 * balance / 1e9) / 100} {currencyName}</span>
+                                    <small className='ms-1'>({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currencyPrice * balance / 1e9)})</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>Network</h3>
+                            <select className='form-control' value={network} onChange={(event) => setNetwork(event.target.value)}>
+                                {Object.keys(networks).map(network => {
+                                    return (
+                                        <option key={network} value={network}>{network}</option>
+                                    );
+                                })}
+                            </select>
+                        </div>
                     </div>
 
-                    <h2>Network</h2>
-                    <select value={network} onChange={(event) => setNetwork(event.target.value)}>
-                        {Object.keys(networks).map(network => {
-                            return (
-                                <option key={network} value={network}>{network}</option>
-                            );
-                        })}
-                    </select>
                 </div>
 
                 {/* tokens list */}
