@@ -33,3 +33,13 @@ export type Network = {
 }
 
 export type NetworkName = keyof typeof networks;
+
+
+export type SlotStatus = 'idle' | 'starting' | 'running' | 'stopping';
+
+
+export type TradeResult = {
+    "inputAmount": number,
+    "outputAmount": number,
+    "priceUsd": number,
+};

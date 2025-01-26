@@ -1,0 +1,8 @@
+{
+    "status": "ok",
+    "data": {
+        "inputAmount": 1000000,
+        "outputAmount": 1500000000,
+        "priceUsd": 300
+    }
+}

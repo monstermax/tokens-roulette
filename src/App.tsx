@@ -5,8 +5,9 @@ import './App.css'
 
 import { networks } from './config';
 
-import type { NetworkName, Token, TokensPair, Wallet } from './types';
+import type { NetworkName, SlotStatus, Token, TokensPair, Wallet } from './types';
 import { DexscreenerTokensPair } from './dexscreener.types';
+import { buy, sell } from './swap_api';
 
 
 const examplePairs: TokensPair[] = [
@@ -106,7 +107,7 @@ async function fetchTrendsTokens(network: NetworkName): Promise<Token[]> {
 
 async function fetchBalance(network: NetworkName, wallet: Wallet): Promise<number> {
     // TODO
-    return 10;
+    return 10 * 1e9;
 }
 
 
@@ -204,8 +205,8 @@ function App() {
                     <div>
                         <h3>Balance</h3>
                         <p>
-                            <span className='me-1'>{balance} {currencyName}</span>
-                            <small className='ms-1'>({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(balance * currencyPrice)})</small>
+                            <span className='me-1'>{Math.round(100 * balance / 1e9) / 100} {currencyName}</span>
+                            <small className='ms-1'>({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currencyPrice * balance / 1e9)})</small>
                         </p>
                     </div>
                 </div>
@@ -223,6 +224,7 @@ function App() {
                                     currencyPrice={currencyPrice}
                                     pair={pair}
                                     balance={balance}
+                                    setBalance={setBalance}
                                     />
                             );
                         })}
@@ -237,32 +239,47 @@ function App() {
 
 
 
-const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensPair, balance: number}) => {
+
+const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensPair, balance: number, setBalance:  React.Dispatch<React.SetStateAction<number>>}) => {
     const pair = props.pair;
     const network = props.network;
     const currencyPrice = props.currencyPrice;
     const balance = props.balance;
+    const setBalance = props.setBalance;
 
     const wheelRef = useRef<{ startSpin: () => void, stopSpin: () => void } | null>(null);
     const timerRemainingRef = useRef<number | null>(null);
 
     const [remainingTime, setRemainingTime] = useState(10);
-    const [amount, setAmount] = useState(0);
-    const [isRunning, setIsRunning] = useState(false);
+    const [amountUsd, setAmountUsd] = useState(0);
+    const [slotStatus, setSlotStatus] = useState<SlotStatus>('idle');
+    const [currentGame, setCurrentGame] = useState<{ buyPrice: number | null, sellPrice: number | null }>({ buyPrice: null, sellPrice: null });
 
 
     const startGame = async (duration=30) => {
-        setIsRunning(true);
-        setRemainingTime(duration);
+        setSlotStatus('starting');
+        setCurrentGame({ buyPrice: null, sellPrice: null });
 
-        if (wheelRef.current) {
-            wheelRef.current?.startSpin();
-        }
+        const amountCoin = Math.round(1e9 * amountUsd / currencyPrice;)
 
-        timerRemainingRef.current = setInterval(() => {
-            setRemainingTime((value) => Math.max(0, value - 1));
-        }, 1000)
+        buy(pair, amountCoin)
+            .then((tradeResult) => {
+                const buyPrice = tradeResult.priceUsd;
+                setCurrentGame((game) => ({ ...game, buyPrice }));
 
+                setSlotStatus('running');
+
+                setBalance((balance) => balance -= amountCoin);
+                setRemainingTime(duration);
+
+                if (wheelRef.current) {
+                    wheelRef.current?.startSpin();
+                }
+
+                timerRemainingRef.current = setInterval(() => {
+                    setRemainingTime((value) => Math.max(0, value - 1));
+                }, 1000);
+            })
     }
 
 
@@ -271,20 +288,49 @@ const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensP
             clearInterval(timerRemainingRef.current);
         }
 
-        if (wheelRef.current) {
-            wheelRef.current?.stopSpin();
-        }
+        setSlotStatus('stopping');
 
-        setIsRunning(false);
+        sell(pair)
+            .then((tradeResult) => {
+                const sellPrice = tradeResult.priceUsd;
+                setCurrentGame((game) => ({ ...game, sellPrice }));
+
+                const amountCoin = Math.round(1e9 * sellPrice / currencyPrice);
+                setBalance((balance) => balance += amountCoin);
+
+                if (wheelRef.current) {
+                    wheelRef.current?.stopSpin();
+                }
+
+                setSlotStatus('idle');
+            });
     }
 
 
     useEffect(() => {
-        if (isRunning && remainingTime <= 0) {
+        // remainingTime changed
+
+        if (slotStatus === 'running' && remainingTime <= 0) {
             stopGame();
         }
 
-    }, [remainingTime])
+    }, [remainingTime]);
+
+
+    useEffect(() => {
+        // currentGame changed
+
+        if (currentGame.buyPrice && currentGame.sellPrice) {
+            const diff = currentGame.sellPrice - currentGame.buyPrice;
+            const percent = 100 * diff / currentGame.buyPrice;
+
+            console.log('buyPrice: ', currentGame.buyPrice);
+            console.log('sellPrice: ', currentGame.sellPrice);
+            console.log('diff: ', diff, '$');
+            console.log('percent: ', Math.round(10 * percent) / 10, '%');
+        }
+
+    }, [currentGame]);
 
 
     return (
@@ -307,21 +353,21 @@ const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensP
                 <div className='m-1 mx-2'>
                     <div className="input-group">
                         <span className="input-group-text">$</span>
-                        <input type="number" className="form-control" aria-label="Dollar amount (with dot and two decimal places)" min={0} step={1} value={amount} onChange={(event) => setAmount(Number(event.target.value))} />
+                        <input type="number" className="form-control" aria-label="Dollar amount (with dot and two decimal places)" min={0} step={1} value={amountUsd} onChange={(event) => setAmountUsd(Number(event.target.value))} />
 
-                        {isRunning && 
+                        {['running', 'stopping'].includes(slotStatus) && 
                             <button
                                 onClick={() => stopGame()}
-                                className={`btn btn-outline-success ${(amount >= 1 && amount < balance * currencyPrice) ? "" : "disabled"}`}
+                                className={`btn btn-outline-success ${(slotStatus === 'running') ? "" : "disabled"}`}
                                 >
                                 Stop ({remainingTime} sec.)
                             </button>
                         }
 
-                        {!isRunning && 
+                        {['idle', 'starting'].includes(slotStatus) && 
                             <button
                             onClick={() => startGame()}
-                                className={`btn btn-outline-success ${(amount >= 1 && amount < balance * currencyPrice) ? "" : "disabled"}`}
+                                className={`btn btn-outline-success ${(slotStatus === 'idle' && amountUsd >= 1 && amountUsd < balance * currencyPrice) ? "" : "disabled"}`}
                                 >
                                 Launch
                             </button>
