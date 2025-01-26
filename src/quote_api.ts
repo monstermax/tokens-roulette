@@ -48,7 +48,11 @@ export async function getQuoteCurlAlt(inputMint: string, outputMint: string, amo
 
 export async function buy(pair: TokensPair, amount: number): Promise<TradeResult> {
     const quote = await getQuoteCurlAlt(pair.quoteToken.address, pair.baseToken.address, amount);
-    
+
+    if (! quote) {
+        throw new Error(`buy quote error`);
+    }
+
     return {
         inputAmount: quote.inAmount,
         outputAmount: quote.outAmount,
@@ -59,6 +63,10 @@ export async function buy(pair: TokensPair, amount: number): Promise<TradeResult
 
 export async function sell(pair: TokensPair, amount: number): Promise<TradeResult> {
     const quote = await getQuoteCurlAlt(pair.baseToken.address, pair.quoteToken.address, amount);
+
+    if (! quote) {
+        throw new Error(`sell quote error`);
+    }
 
     return {
         inputAmount: quote.inAmount,

@@ -46,10 +46,26 @@ export type TradeResult = {
 
 
 export type CurrentGame = {
+    buyDate: Date | null,
     buyPrice: number | null,
-    sellPrice: number | null,
     buyInputAmount: number | null,
     buyOutputAmount: number | null,
+    sellDate: Date | null,
+    sellPrice: number | null,
     sellOutputAmount: number | null,
 };
+
+
+export type GameHistory = {
+    tokenName: string,
+    pairAddress: string,
+    buyDate: Date,
+    buyAmountIn: number,
+    buyAmountOut: number,
+    sellDate: Date,
+    sellAmountOut: number,
+    diffCoin: number,
+    diffUsd: number,
+    percent: number,
+}
 
