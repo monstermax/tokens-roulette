@@ -43,3 +43,13 @@ export type TradeResult = {
     "outputAmount": number,
     "priceUsd": number,
 };
+
+
+export type CurrentGame = {
+    buyPrice: number | null,
+    sellPrice: number | null,
+    buyInputAmount: number | null,
+    buyOutputAmount: number | null,
+    sellOutputAmount: number | null,
+};
+

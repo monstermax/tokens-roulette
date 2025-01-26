@@ -26,13 +26,14 @@ export async function buy(pair: TokensPair, amount: number): Promise<TradeResult
 }
 
 
-export async function sell(pair: TokensPair): Promise<TradeResult> {
+export async function sell(pair: TokensPair, amount?: number | null): Promise<TradeResult> {
     //const apiUrl = "http://localhost:3000/sell";
     const apiUrl = "/sell.json";
 
     const params = {
         inputToken: pair.baseToken.address,
         outputToken: pair.quoteToken.address,
+        amount,
     };
 
     const response = await fetch(apiUrl, {

@@ -5,9 +5,11 @@ import './App.css'
 
 import { networks } from './config';
 
-import type { NetworkName, SlotStatus, Token, TokensPair, Wallet } from './types';
-import { DexscreenerTokensPair } from './dexscreener.types';
-import { buy, sell } from './swap_api';
+//import { buy, sell } from './swap_api';
+import { buy, sell } from './quote_api';
+
+import type { CurrentGame, NetworkName, SlotStatus, Token, TokensPair, Wallet } from './types';
+import type { DexscreenerTokensPair } from './dexscreener.types';
 
 
 const examplePairs: TokensPair[] = [
@@ -253,23 +255,26 @@ const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensP
     const [remainingTime, setRemainingTime] = useState(10);
     const [amountUsd, setAmountUsd] = useState(0);
     const [slotStatus, setSlotStatus] = useState<SlotStatus>('idle');
-    const [currentGame, setCurrentGame] = useState<{ buyPrice: number | null, sellPrice: number | null }>({ buyPrice: null, sellPrice: null });
+    const [currentGame, setCurrentGame] = useState<CurrentGame>({ buyPrice: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
 
 
     const startGame = async (duration=30) => {
         setSlotStatus('starting');
-        setCurrentGame({ buyPrice: null, sellPrice: null });
+        setCurrentGame({ buyPrice: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
 
-        const amountCoin = Math.round(1e9 * amountUsd / currencyPrice;)
+        const inputAmountCoin = Math.round(1e9 * amountUsd / currencyPrice);
 
-        buy(pair, amountCoin)
+        buy(pair, inputAmountCoin)
             .then((tradeResult) => {
-                const buyPrice = tradeResult.priceUsd;
-                setCurrentGame((game) => ({ ...game, buyPrice }));
+                const buyPrice = Number(tradeResult.priceUsd);
+                const buyInputAmount = Number(tradeResult.inputAmount);
+                const buyOutputAmount = Number(tradeResult.outputAmount);
+
+                setCurrentGame((game) => ({ ...game, buyPrice, buyInputAmount, buyOutputAmount }));
 
                 setSlotStatus('running');
 
-                setBalance((balance) => balance -= amountCoin);
+                setBalance((balance) => balance -= buyInputAmount);
                 setRemainingTime(duration);
 
                 if (wheelRef.current) {
@@ -290,20 +295,25 @@ const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensP
 
         setSlotStatus('stopping');
 
-        sell(pair)
-            .then((tradeResult) => {
-                const sellPrice = tradeResult.priceUsd;
-                setCurrentGame((game) => ({ ...game, sellPrice }));
+        const inputAmountCoin = currentGame.buyOutputAmount;
 
-                const amountCoin = Math.round(1e9 * sellPrice / currencyPrice);
-                setBalance((balance) => balance += amountCoin);
+        if (inputAmountCoin) {
+            sell(pair, inputAmountCoin)
+                .then((tradeResult) => {
+                    const sellPrice = Number(tradeResult.priceUsd);
+                    const sellOutputAmount = Number(tradeResult.outputAmount);
 
-                if (wheelRef.current) {
-                    wheelRef.current?.stopSpin();
-                }
+                    setCurrentGame((game) => ({ ...game, sellPrice, sellOutputAmount }));
 
-                setSlotStatus('idle');
-            });
+                    setBalance((balance) => balance += sellOutputAmount);
+
+                    if (wheelRef.current) {
+                        wheelRef.current?.stopSpin();
+                    }
+
+                    setSlotStatus('idle');
+                });
+        }
     }
 
 
@@ -320,14 +330,23 @@ const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensP
     useEffect(() => {
         // currentGame changed
 
-        if (currentGame.buyPrice && currentGame.sellPrice) {
-            const diff = currentGame.sellPrice - currentGame.buyPrice;
-            const percent = 100 * diff / currentGame.buyPrice;
+        if (currentGame.buyPrice && currentGame.sellPrice && currentGame.sellOutputAmount && currentGame.buyInputAmount) {
+            //const diff = currentGame.sellPrice - currentGame.buyPrice;
+            //const percent = 100 * diff / currentGame.buyPrice;
 
+            const diffCoin = currentGame.sellOutputAmount - currentGame.buyInputAmount;
+            const percent = 100 * diffCoin / currentGame.buyInputAmount;
+            const diffFullCoin = diffCoin / 1e9;
+            const diffUsd = diffFullCoin * currencyPrice;
+
+            console.log('currentGame:', currentGame)
             console.log('buyPrice: ', currentGame.buyPrice);
             console.log('sellPrice: ', currentGame.sellPrice);
-            console.log('diff: ', diff, '$');
+            console.log('diffCoin: ', Math.round(100 * diffFullCoin) / 100, networks[network].symbol);
+            console.log('diffUsd: ', Math.round(100 * diffUsd) / 100, '$');
             console.log('percent: ', Math.round(10 * percent) / 10, '%');
+
+            // TODO: show popup gain
         }
 
     }, [currentGame]);
