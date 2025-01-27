@@ -12,7 +12,7 @@ import { buy, sell } from './quote_api'; // QUOTES ONLY
 import type { CurrentGame, GameHistory, SlotStatus, TokensPair } from "./types";
 
 
-export const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensPair, balance: number, setBalance: React.Dispatch<React.SetStateAction<number>>, saveGame: (newGameHistory: GameHistory) => void, showEndGameModal: () => void}) => {
+export const SlotToken = (props: { network: string, currencyPrice: number, pair: TokensPair, balance: number, setBalance: React.Dispatch<React.SetStateAction<number>>, saveGame: (newGameHistory: GameHistory) => void, showEndGameModal: () => void }) => {
     const pair = props.pair;
     const network = props.network;
     const currencyPrice = props.currencyPrice;
@@ -29,7 +29,7 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
     const [slotStatus, setSlotStatus] = useState<SlotStatus>('idle');
     const [currentGame, setCurrentGame] = useState<CurrentGame>({ buyDate: null, buyPrice: null, sellDate: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
 
-    const startGame = async (duration=30) => {
+    const startGame = async (duration = 30) => {
         setSlotStatus('starting');
         setCurrentGame({ buyDate: null, buyPrice: null, sellDate: null, sellPrice: null, buyInputAmount: null, buyOutputAmount: null, sellOutputAmount: null });
 
@@ -39,7 +39,7 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
             .then((tradeResult) => {
                 console.log(`Buy result:`, tradeResult);
 
-                if (! tradeResult || ! tradeResult.inputAmount) {
+                if (!tradeResult || !tradeResult.inputAmount) {
                     throw new Error(`invalid buy result`);
                 }
 
@@ -87,7 +87,7 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
                 .then((tradeResult) => {
                     console.log(`Sell result:`, tradeResult);
 
-                    if (! tradeResult || ! tradeResult.outputAmount) {
+                    if (!tradeResult || !tradeResult.outputAmount) {
                         throw new Error(`invalid buy result`);
                     }
 
@@ -132,12 +132,12 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
             //const diff = currentGame.sellPrice - currentGame.buyPrice;
             //const percent = 100 * diff / currentGame.buyPrice;
 
-            if (! currentGame.buyDate) {
+            if (!currentGame.buyDate) {
                 console.warn(`EndGame ERROR. empty buyDate`);
                 return;
             };
 
-            if (! currentGame.sellDate) {
+            if (!currentGame.sellDate) {
                 console.warn(`EndGame ERROR. empty sellDate`);
                 return;
             };
@@ -203,7 +203,7 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
                         target.onerror = null; // Prevent infinite loop
                         target.src = svgFallback;
                     }}
-                    />
+                />
 
                 {/* title  */}
                 <h3 className="m-1 text-truncate text-center flex-grow-1">
@@ -212,7 +212,7 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
                         title={pairLinkTitle}
                         target="_blank"
                         className="text-decoration-none text-light"
-                        >
+                    >
                         {pair.baseToken.name}
                     </a>
                 </h3>
@@ -220,74 +220,72 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
 
             {/* WheelOfFortune + buttons */}
             <div className='my-1 text-center'>
-
                 {/* WheelOfFortune */}
                 <WheelOfFortune ref={wheelRef} />
-
-                {/* buttons */}
-                <div className="">
-
-                    {/* start button */}
-                    {['idle', 'starting'].includes(slotStatus) && (
-                        <div>
-                            <div className="input-group d-flex w-100">
-                                <span className="input-group-text bg-dark text-light">$</span>
-
-                                <input
-                                    type="number"
-                                    className="form-control fw-bold bg-transparent text-light flex-grow-1"
-                                    style={{ minWidth: '3em' }}
-                                    list="betsValues"
-                                    min={0}
-                                    step={1}
-                                    max={9999}
-                                    value={amountUsd}
-                                    onChange={(event) => setAmountUsd(Number(event.target.value))}
-                                />
-
-                                <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>$10</button>
-                                <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>$100</button>
-                            </div>
-
-                            <button
-                                onClick={() => startGame()}
-                                className={`btn w-100 ${startEnabled ? 'btn-outline-success' : 'btn-outline-secondary disabled'}`}
-                                >
-                                {slotStatus === 'starting' ? (
-                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    ) : (
-                                        "Launch"
-                                    )}
-                            </button>
-                        </div>
-                    )}
-
-                    {/* stop button */}
-                    {['running', 'stopping'].includes(slotStatus) && (
-                        <button
-                            onClick={() => stopGame()}
-                            className={`btn w-100 align-bottom ${stopEnabled ? 'btn-outline-danger' : 'btn-outline-secondary disabled'}`}
-                            style={{ height: "38px" }}
-                        >
-                            {slotStatus === 'stopping' ? (
-                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                ) : (
-                                    `Stop (${remainingTime} sec.)`
-                                )}
-                        </button>
-                    )}
-                </div>
-
             </div>
 
-            {/* BearishBar  */}
-            <div className="mt-2 d-flex text-light">
-                <div className="m-1 align-middle">Trend</div>
+            {/* buttons */}
+            <div className="mt-auto flex-grow-1 d-flex align-items-end">
 
-                <div className="m-1 flex-grow-1 align-middle" style={{ height: '1em' }}>
+                {/* start button */}
+                {['idle', 'starting'].includes(slotStatus) && (
+                    <div>
+                        <div className="input-group d-flex w-100">
+                            <span className="input-group-text bg-dark text-light cursor-default">$</span>
+
+                            <input
+                                type="number"
+                                className="form-control fw-bold bg-transparent text-light flex-grow-1"
+                                style={{ minWidth: '3em' }}
+                                list="betsValues"
+                                min={0}
+                                step={1}
+                                max={Math.floor(currencyPrice * balance / 1e9)}
+                                value={amountUsd}
+                                onChange={(event) => setAmountUsd(Math.max(0, Math.min(Math.floor(currencyPrice * balance / 1e9), Number(event.target.value))))}
+                            />
+
+                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>$10</button>
+                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>$100</button>
+                        </div>
+
+                        <button
+                            onClick={() => startGame()}
+                            className={`btn w-100 fw-bold ${startEnabled ? 'btn-outline-success' : 'btn-outline-secondary disabled'}`}
+                        >
+                            {slotStatus === 'starting' ? (
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            ) : (
+                                "Launch"
+                            )}
+                        </button>
+                    </div>
+                )}
+
+                {/* stop button */}
+                {['running', 'stopping'].includes(slotStatus) && (
+                    <button
+                        onClick={() => stopGame()}
+                        className={`btn w-100 fw-bold ${stopEnabled ? 'btn-outline-danger' : 'btn-outline-secondary disabled'}`}
+                        style={{ height: "38px" }}
+                    >
+                        {slotStatus === 'stopping' ? (
+                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        ) : (
+                            `Stop (${remainingTime} sec.)`
+                        )}
+                    </button>
+                )}
+            </div>
+
+            {/* Trend Bar */}
+            <div className="bearish-bar-container mt-auto">
+                <div className="text-muted">Trend</div>
+                <div className="bearish-bar">
                     <BearishBar priceChangeM5={pair.stats?.priceChangeM5} />
                 </div>
             </div>
         </div>
     );
+
 }

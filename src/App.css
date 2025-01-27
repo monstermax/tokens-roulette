@@ -17,6 +17,12 @@ h3 {
     /* Accent */
 }
 
+
+.cursor-default {
+    cursor: default;
+}
+
+
 /* Cartes de SlotToken */
 .card {
     background-color: #1f1f1f;
@@ -110,6 +116,7 @@ h3 {
 }
 
 
+
 .card {
     overflow: hidden;
     text-align: center;
@@ -135,7 +142,6 @@ h3 {
 }
 
 
-
 .wheel {
     margin: 0 auto;
     display: flex;
@@ -143,6 +149,12 @@ h3 {
     align-items: center;
 }
 
+
+.disabled-overlay {
+    pointer-events: none; /* Désactive toutes les interactions */
+    opacity: 0.5; /* Rend les tokens semi-transparents */
+    filter: grayscale(100%); /* Ajoute un effet de gris */
+}
 
 
 @media (max-width: 768px) {

@@ -82,6 +82,7 @@ function App() {
         setIsFetching(true);
 
         fetchTrendsPairs(network, tokensAddresses)
+            //.then((tokensPairs) => new Promise<TokensPair[]>((r) => setTimeout(() => r(tokensPairs), 3000))) // DEBUG
             .then((tokensPairs => {
 
                 // Filter
@@ -215,16 +216,18 @@ function App() {
                 {/* tokens list */}
                 <div className='alert alert-dark'>
                     <div className='d-flex'>
-                        <h2>Slot Tokens</h2>
+                        <h2 className='m-1 cursor-default'>Slot Tokens</h2>
 
-                        <button className='btn btn-sm' onClick={() => refreshTokensList()}>
-                            <img src="/refresh.png" alt="Refresh tokens list" />
+                        <button className="btn btn-sm m-1" onClick={refreshTokensList} disabled={isFetching}>
+                            {isFetching ? (
+                                <span className="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
+                            ) : (
+                                <img src="/refresh.png" alt="Refresh tokens list" />
+                            )}
                         </button>
-
-                        {isFetching && "..."}
                     </div>
 
-                    <div className='d-flex flex-wrap'>
+                    <div className={`d-flex flex-wrap justify-content-around position-relative ${isFetching ? "disabled-overlay" : ""}`}>
                         {pairs.map(pair => {
                             return (
                                 <SlotToken
@@ -249,8 +252,10 @@ function App() {
                         <option value="10"></option>
                         <option value="50"></option>
                         <option value="100"></option>
+                        <option value="200"></option>
                         <option value="500"></option>
                         <option value="1000"></option>
+                        <option value="5000"></option>
                     </datalist>
                 </div>
 

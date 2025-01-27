@@ -6,20 +6,21 @@ import React, { useRef, useState } from "react";
 export const WheelOfFortune = React.forwardRef((props, ref) => {
     const [isSpinning, setIsSpinning] = useState(false);
     const [rotation, setRotation] = useState(0);
-    const [spinSpeed, setSpinSpeed] = useState(5);
+    const [spinSpeed, setSpinSpeed] = useState(100);
     const intervalRef = useRef<number | null>(null); // Référence pour l'intervalle
 
-    const segments = ["Prix 1", "Prix 2", "Prix 3", "Prix 4", "Prix 5", "Prix 6"];
+    const segments = ["Lambo", "Dump", "Moon", "Fomo", "Pump", "Whale"];
     const segmentAngle = 360 / segments.length;
 
     const startSpin = () => {
         if (isSpinning) return;
 
         setIsSpinning(true);
-        setSpinSpeed(10); // Vitesse initiale
+        //setSpinSpeed(100); // Vitesse initiale
+
         intervalRef.current = window.setInterval(() => {
-            setRotation((prev) => prev + spinSpeed);
-            setSpinSpeed((prev) => Math.max(prev - 0.1, 1)); // Réduction progressive de la vitesse
+            setRotation((prev) => prev - spinSpeed);
+            //setSpinSpeed((prev) => Math.max(prev - 0.1, 1)); // Réduction progressive de la vitesse
         }, 16);
     };
 
@@ -42,7 +43,7 @@ export const WheelOfFortune = React.forwardRef((props, ref) => {
     }));
 
     return (
-        <div className='wheel-container mb-1'>
+        <div className='wheel-container mb-1 cursor-default'>
 
             {/* Roue */}
             <div
@@ -65,7 +66,7 @@ export const WheelOfFortune = React.forwardRef((props, ref) => {
                                 x="50"
                                 y="10"
                                 fill="#fff"
-                                fontSize="3"
+                                fontSize="9"
                                 fontWeight="bold"
                                 textAnchor="middle"
                                 transform={`rotate(${segmentAngle / 2}, 50, 50)`}
