@@ -9,7 +9,7 @@ import { networks } from './config';
 
 import type { GameHistory, NetworkName, Token, TokensPair, Wallet } from './types';
 import { fetchCurrencyPrice, fetchTrendsPairs, fetchTrendsTokens } from './dexscreener';
-import { SlotToken } from './SlotToken.';
+import { SlotToken } from './SlotToken';
 import { EndGameModal } from './EndGameModal';
 import { fetchRecentTokens } from './coingeckoterminal';
 import { Modal } from 'bootstrap';
@@ -173,11 +173,11 @@ function App() {
 
     return (
         <div className='container mt-5'>
-            <div className='d-flex mb-2'>
+            <a href="./" className='d-flex mb-2 text-decoration-none'>
                 <Logo />
 
                 <h1 className='mx-3'>Tokens Roulette</h1>
-            </div>
+            </a>
 
             <div className="">
 
@@ -188,9 +188,9 @@ function App() {
 
                             {/* Wallet */}
                             <div className='my-1 d-flex'>
-                                <h2 className='m-1 me-3'>Wallet</h2>
+                                <h2 className='m-1 me-3 cursor-default'>Wallet</h2>
 
-                                <div className='badge bg-dark mx-1 text-light'>
+                                <div className='badge bg-dark mx-1 text-light cursor-default'>
                                     <div className='m-1'>{wallet?.name}</div>
                                     <div className='m-1 badge'>{wallet?.address}</div>
                                 </div>
@@ -198,23 +198,30 @@ function App() {
                                 <img src={`https://dd.dexscreener.com/ds-data/chains/${network}.png`} className='m-1' alt={networks[network].name} style={{ width: '32px', height: '32px' }} />
                             </div>
 
-                            {/* Balance */}
-                            <div className='my-1 d-flex'>
-                                <h3 className='m-1 me-3'>Balance</h3>
+                            {/* Balance + Deposit + Withdraw */}
+                            <div className='my-1 d-flex flex-wrap'>
+                                <h3 className='m-1 me-3 cursor-default'>Balance</h3>
 
+                                {/* Balance */}
                                 <div className="badge bg-dark text-light">
-                                    <p className='h4'>
+                                    <p className='h4 cursor-default'>
                                         <span className='me-1'>{Math.round(100 * balance / 1e9) / 100} {currencyName}</span>
 
                                         <small className='ms-1'>({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currencyPrice * balance / 1e9)})</small>
                                     </p>
+                                </div>
+
+                                {/* Deposit + Withdraw */}
+                                <div className='m-1'>
+                                    <button className='btn btn-outline-secondary m-1 disabled'>Deposit</button>
+                                    <button className='btn btn-outline-secondary m-1 disabled'>Withdraw</button>
                                 </div>
                             </div>
                         </div>
 
                         <div>
                             <div className='my-1'>
-                                <h3 className='m-1'>Network</h3>
+                                <h3 className='m-1 cursor-default'>Network</h3>
 
                                 <select className='form-control bg-dark text-light m-1' value={network} onChange={(event) => setNetwork(event.target.value)}>
                                     {Object.keys(networks).map(network => {

@@ -225,57 +225,61 @@ export const SlotToken = (props: { network: string, currencyPrice: number, pair:
             </div>
 
             {/* buttons */}
-            <div className="mt-auto flex-grow-1 d-flex align-items-end">
+            <div className="mt-auto flex-grow-1">
 
-                {/* start button */}
-                {['idle', 'starting'].includes(slotStatus) && (
-                    <div>
-                        <div className="input-group d-flex w-100">
-                            <span className="input-group-text bg-dark text-light cursor-default">$</span>
+                <div className="h-100 d-flex justify-content-between align-items-end">
+                    {/* start button */}
+                    {['idle', 'starting'].includes(slotStatus) && (
+                        <div className="w-100">
+                            <div className="input-group d-flex w-100">
+                                <span className="input-group-text bg-dark text-light cursor-default">$</span>
 
-                            <input
-                                type="number"
-                                className="form-control fw-bold bg-transparent text-light flex-grow-1"
-                                style={{ minWidth: '3em' }}
-                                list="betsValues"
-                                min={0}
-                                step={1}
-                                max={Math.floor(currencyPrice * balance / 1e9)}
-                                value={amountUsd}
-                                onChange={(event) => setAmountUsd(Math.max(0, Math.min(Math.floor(currencyPrice * balance / 1e9), Number(event.target.value))))}
-                            />
+                                <input
+                                    type="number"
+                                    className="form-control fw-bold bg-transparent text-light flex-grow-1"
+                                    style={{ minWidth: '3em' }}
+                                    list="betsValues"
+                                    min={0}
+                                    step={1}
+                                    max={Math.floor(currencyPrice * balance / 1e9)}
+                                    value={amountUsd}
+                                    onChange={(event) => setAmountUsd(Math.max(0, Math.min(Math.floor(currencyPrice * balance / 1e9), Number(event.target.value))))}
+                                />
 
-                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>$10</button>
-                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>$100</button>
+                                <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>$10</button>
+                                <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>$100</button>
+                            </div>
+
+                            <button
+                                onClick={() => startGame()}
+                                className={`btn w-100 fw-bold ${startEnabled ? 'btn-outline-success' : 'btn-outline-secondary disabled'}`}
+                            >
+                                {slotStatus === 'starting' ? (
+                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                ) : (
+                                    "Launch"
+                                )}
+                            </button>
                         </div>
+                    )}
 
-                        <button
-                            onClick={() => startGame()}
-                            className={`btn w-100 fw-bold ${startEnabled ? 'btn-outline-success' : 'btn-outline-secondary disabled'}`}
-                        >
-                            {slotStatus === 'starting' ? (
-                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            ) : (
-                                "Launch"
-                            )}
-                        </button>
-                    </div>
-                )}
-
-                {/* stop button */}
-                {['running', 'stopping'].includes(slotStatus) && (
-                    <button
-                        onClick={() => stopGame()}
-                        className={`btn w-100 fw-bold ${stopEnabled ? 'btn-outline-danger' : 'btn-outline-secondary disabled'}`}
-                        style={{ height: "38px" }}
-                    >
-                        {slotStatus === 'stopping' ? (
-                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        ) : (
-                            `Stop (${remainingTime} sec.)`
-                        )}
-                    </button>
-                )}
+                    {/* stop button */}
+                    {['running', 'stopping'].includes(slotStatus) && (
+                        <div className="w-100">
+                            <button
+                                onClick={() => stopGame()}
+                                className={`btn w-100 fw-bold ${stopEnabled ? 'btn-outline-danger' : 'btn-outline-secondary disabled'}`}
+                                style={{ height: "38px" }}
+                            >
+                                {slotStatus === 'stopping' ? (
+                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                ) : (
+                                    `Stop (${remainingTime} sec.)`
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Trend Bar */}
