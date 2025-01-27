@@ -164,13 +164,13 @@ function App() {
             <div className="">
 
                 {/* wallet */}
-                <div className='alert alert-dark'>
-                    <div className='d-flex justify-content-between'>
+                <div className='alert alert-dark text-light'>
+                    <div className='d-flex flex-wrap justify-content-between'>
                         <div>
                             <div className='my-1 d-flex'>
                                 <h2 className='m-1 me-3'>Wallet</h2>
 
-                                <div className='badge bg-dark'>
+                                <div className='badge bg-dark text-light'>
                                     <div className='m-1'>{wallet?.name}</div>
                                     <div className='m-1 badge'>{wallet?.address}</div>
                                 </div>
@@ -179,7 +179,7 @@ function App() {
                             <div className='my-1 d-flex'>
                                 <h3 className='m-1 me-3'>Balance</h3>
 
-                                <div className="badge bg-dark">
+                                <div className="badge bg-dark text-light">
                                     <p className='h4'>
                                         <span className='me-1'>{Math.round(100 * balance / 1e9) / 100} {currencyName}</span>
 
@@ -196,14 +196,14 @@ function App() {
                                 <select className='form-control bg-dark text-light m-1' value={network} onChange={(event) => setNetwork(event.target.value)}>
                                     {Object.keys(networks).map(network => {
                                         return (
-                                            <option key={network} value={network}>{network}</option>
+                                            <option key={network} value={network}>{networks[network].name}</option>
                                         );
                                     })}
                                 </select>
                             </div>
 
                             <div className='my-1'>
-                                <button className='btn btn-outline-secondary' onClick={() => showEndGameModal()}>
+                                <button className='btn btn-outline-secondary w-100' onClick={() => showEndGameModal()}>
                                     History
                                 </button>
                             </div>

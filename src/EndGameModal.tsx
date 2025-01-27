@@ -14,7 +14,7 @@ export const EndGameModal = (props: { gamesHistory: GameHistory[], network: stri
     return (
         <div id="modal-game-end" className="modal" tabIndex={-1}>
             <div className="modal-dialog modal-lg">
-                <div className="modal-content">
+                <div className="modal-content bg-dark text-light">
                     <div className="modal-header">
                         <h5 className="modal-title">Game History</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

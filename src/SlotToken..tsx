@@ -184,9 +184,12 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
         `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><circle cx="32" cy="32" r="30" fill="#edc" stroke="#000" stroke-width="2"/><text x="32" y="42" font-size="30" text-anchor="middle" fill="#000" font-family="Arial, sans-serif">${pair.baseToken.name.charAt(0).toUpperCase()}</text></svg>`
     )}`;
 
+    const startEnabled = slotStatus === 'idle' && amountUsd >= 1 && amountUsd < balance * currencyPrice;
+
+    const stopEnabled = slotStatus === 'running';
 
     return (
-        <div className='card mx-1 my-3' style={{ width: '300px' }}>
+        <div className='card m-3'>
 
             {/* image + title  */}
             <div className='d-flex my-1'>
@@ -203,8 +206,13 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
                     />
 
                 {/* title  */}
-                <h3 className='m-1 text-truncate text-center flex-grow-1'>
-                    <a href={`https://dexscreener.com/${network}/${pair.pairAddress}`} title={pairLinkTitle} target='_blank' className="text-decoration-none text-dark">
+                <h3 className="m-1 text-truncate text-center flex-grow-1">
+                    <a
+                        href={`https://dexscreener.com/${network}/${pair.pairAddress}`}
+                        title={pairLinkTitle}
+                        target="_blank"
+                        className="text-decoration-none text-light"
+                        >
                         {pair.baseToken.name}
                     </a>
                 </h3>
@@ -214,45 +222,72 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
             <div className='my-1 text-center'>
 
                 {/* WheelOfFortune */}
-                <div className='wheel'>
-                    <WheelOfFortune ref={wheelRef} />
-                </div>
+                <WheelOfFortune ref={wheelRef} />
 
                 {/* buttons */}
-                <div className='m-1 mx-2'>
+                <div className="">
 
                     {/* start button */}
-                    {['idle', 'starting'].includes(slotStatus) &&
-                        <div className="input-group">
-                            <span className="input-group-text">$</span>
-                            <input type="number" className="form-control" list="betsValues" aria-label="Dollar amount (with dot and two decimal places)" min={0} step={1} value={amountUsd} onChange={(event) => setAmountUsd(Number(event.target.value))} />
+                    {['idle', 'starting'].includes(slotStatus) && (
+                        <div>
+                            <div className="input-group d-flex w-100">
+                                <span className="input-group-text bg-dark text-light">$</span>
 
-                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>$10</button>
-                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>$100</button>
+                                <input
+                                    type="number"
+                                    className="form-control fw-bold bg-transparent text-light flex-grow-1"
+                                    style={{ minWidth: '3em' }}
+                                    list="betsValues"
+                                    min={0}
+                                    step={1}
+                                    max={9999}
+                                    value={amountUsd}
+                                    onChange={(event) => setAmountUsd(Number(event.target.value))}
+                                />
+
+                                <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>$10</button>
+                                <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>$100</button>
+                            </div>
 
                             <button
-                            onClick={() => startGame()}
-                                className={`btn btn-outline-success ${(slotStatus === 'idle' && amountUsd >= 1 && amountUsd < balance * currencyPrice) ? "" : "disabled"}`}
+                                onClick={() => startGame()}
+                                className={`btn w-100 ${startEnabled ? 'btn-outline-success' : 'btn-outline-secondary disabled'}`}
                                 >
-                                Launch
+                                {slotStatus === 'starting' ? (
+                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    ) : (
+                                        "Launch"
+                                    )}
                             </button>
                         </div>
-                    }
+                    )}
 
                     {/* stop button */}
-                    {['running', 'stopping'].includes(slotStatus) && 
-                            <button
-                                onClick={() => stopGame()}
-                                className={`btn btn-outline-danger ${(slotStatus === 'running') ? "" : "disabled"}`}
-                                >
-                                Stop ({remainingTime} sec.)
-                            </button>
-                        }
+                    {['running', 'stopping'].includes(slotStatus) && (
+                        <button
+                            onClick={() => stopGame()}
+                            className={`btn w-100 align-bottom ${stopEnabled ? 'btn-outline-danger' : 'btn-outline-secondary disabled'}`}
+                            style={{ height: "38px" }}
+                        >
+                            {slotStatus === 'stopping' ? (
+                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                ) : (
+                                    `Stop (${remainingTime} sec.)`
+                                )}
+                        </button>
+                    )}
                 </div>
+
             </div>
 
             {/* BearishBar  */}
-            <BearishBar priceChangeM5={pair.stats?.priceChangeM5} />
+            <div className="mt-2 d-flex text-light">
+                <div className="m-1 align-middle">Trend</div>
+
+                <div className="m-1 flex-grow-1 align-middle" style={{ height: '1em' }}>
+                    <BearishBar priceChangeM5={pair.stats?.priceChangeM5} />
+                </div>
+            </div>
         </div>
     );
 }

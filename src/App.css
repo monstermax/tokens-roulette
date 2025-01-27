@@ -1,9 +1,154 @@
-
 /* App.css */
 
 
+/* Général */
 body {
-  background-color: black;
-  color: white;
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Titres */
+h1,
+h2,
+h3 {
+    font-weight: bold;
+    color: #00adb5;
+    /* Accent */
+}
+
+/* Cartes de SlotToken */
+.card {
+    background-color: #1f1f1f;
+    /* Couleur de fond des cartes */
+    border: 1px solid #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    padding: 1rem;
+    padding-bottom: .1rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+
+/* Titres des tokens */
+.card h3 {
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+/* Boutons */
+.btn {
+    border-radius: 8px;
+}
+
+.btn-outline-success {
+    border-color: #00adb5;
+    color: #00adb5;
+}
+
+.btn-outline-success:hover {
+    background-color: #00adb5;
+    color: #121212;
+}
+
+.btn-outline-danger {
+    border-color: #ff5722;
+    color: #ff5722;
+}
+
+.btn-outline-danger:hover {
+    background-color: #ff5722;
+    color: #ffffff;
+}
+
+/* Images des tokens */
+.card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00adb5;
+}
+
+/* Roulettes */
+.wheel {
+    margin: 10px auto;
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(45deg, #ff5722, #00adb5);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+/* Barre d'activité */
+.bearish-bar {
+    height: 10px;
+    border-radius: 4px;
+    background-color: #333;
+}
+
+.bearish-bar>.progress {
+    background-color: #00adb5;
+}
+
+/* Wallet Section */
+.alert-dark {
+    background-color: #1f1f1f;
+    color: #ffffff;
+    border: 1px solid #333;
+}
+
+.badge.bg-dark {
+    background-color: #00adb5;
+    color: #121212;
+}
+
+
+.card {
+    overflow: hidden;
+    text-align: center;
+    width: 250px;    /* Taille constante */
+    min-width: 250px;    /* Empêche de réduire trop la carte */
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.card .input-group {
+    padding: 0.5rem 0;
+}
+
+.card .input-group .btn {
+    padding: 0.5rem 1rem;    /* Boutons plus compacts */
+    font-size: 0.9rem;
+}
+
+.card .input-group input {
+    font-size: 0.9rem;    /* Taille de texte adaptée */
+    text-align: center; /* Centre le texte */
+    padding: 0.375rem 0.375rem;
+}
+
+
+
+.wheel {
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+@media (max-width: 768px) {
+    .card {
+      width: 100%; /* Les cartes prennent toute la largeur sur mobile */
+      margin-bottom: 1rem; /* Espacement entre les cartes */
+    }
 }
 

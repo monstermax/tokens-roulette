@@ -36,7 +36,7 @@ export const BearishBar = (props: { priceChangeM5?: number }) => {
     }
 
     return (
-        <div className='d-flex' style={{ height: "10px" }} title={`Bearish indicator: ${bearishPercent}%`}>
+        <div className='progress d-flex h-100' title={`Bearish indicator: ${bearishPercent}%`}>
             <div style={{ backgroundColor: '#d1111c', width: `${100-bearishPercent}%` }}></div>
             <div style={{ backgroundColor: '#1fac9b', width: `${bearishPercent}%` }}></div>
         </div>
