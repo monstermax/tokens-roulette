@@ -283,8 +283,7 @@ export const SlotToken = (props: { network: string, currencyPrice: number, pair:
             </div>
 
             {/* Trend Bar */}
-            <div className="bearish-bar-container mt-auto">
-                <div className="text-muted">Trend</div>
+            <div className="bearish-bar-container mt-auto pt-3">
                 <div className="bearish-bar">
                     <BearishBar priceChangeM5={pair.stats?.priceChangeM5} />
                 </div>
