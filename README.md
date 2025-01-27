@@ -13,6 +13,10 @@ npm run preview
 ## Run (prod)
 copy the "dist" folder to your websites hoster
 
+# Demo
+
+Online demo: https://tkr.vps2.karmas.fr/
+
 # Description
 
 ## 🎰 Tokens Roulette : un projet gamifié autour des crypto-monnaies, combinant simulation et trading en temps réel. 🪙  
