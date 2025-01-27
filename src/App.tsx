@@ -226,7 +226,7 @@ function App() {
                             </div>
 
                             <div className='my-1'>
-                                <button className={`btn btn-outline-secondary w-100 ${gamesHistory.length === 0 ? 'disabled' : ''}`} onClick={() => showEndGameModal()}>
+                                <button className={`btn btn-outline-secondary w-100 fw-bold ${gamesHistory.length === 0 ? 'disabled' : ''}`} onClick={() => showEndGameModal()}>
                                     History
                                 </button>
                             </div>
