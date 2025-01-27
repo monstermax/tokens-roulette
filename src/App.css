@@ -122,6 +122,8 @@ h3 {
     text-align: center;
     width: 250px;    /* Taille constante */
     min-width: 250px;    /* Empêche de réduire trop la carte */
+    min-height: 355px;    /* Taille constante */
+    height: 355px;    /* Taille constante */
     border-radius: 12px;
     padding: 1rem;
 }
@@ -141,6 +143,19 @@ h3 {
     padding: 0.375rem 0.375rem;
 }
 
+.spinner-border {
+    color: #00adb5 !important;
+}
+
+.icon-refresh {
+    transition: transform 0.2s ease-in-out;
+}
+
+.icon-refresh:hover {
+    transform: rotate(90deg); /* Rotation fluide au survol */
+}
+
+
 
 .wheel {
     margin: 0 auto;
@@ -155,6 +170,15 @@ h3 {
     opacity: 0.5; /* Rend les tokens semi-transparents */
     filter: grayscale(100%); /* Ajoute un effet de gris */
 }
+
+
+
+.history.active {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    border: solid 3px #fee !important;
+}
+
 
 
 @media (max-width: 768px) {

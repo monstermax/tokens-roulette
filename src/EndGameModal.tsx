@@ -24,7 +24,7 @@ export const EndGameModal = (props: { gamesHistory: GameHistory[], network: stri
 
                         {[...gamesHistory].reverse().map((gameHistory, index) => {
                             return (
-                                <div key={`${gameHistory.pairAddress}-${gameHistory.buyDate.getTime()}`} className="p-3 mb-3 border rounded">
+                                <div key={`${gameHistory.pairAddress}-${gameHistory.buyDate.getTime()}`} className={`p-3 mb-3 border rounded history ${index === 0 ? 'active' : ''}`}>
                                     <ul className="list-unstyled">
                                         <li className='token mb-2'>
                                             <strong>Token:</strong>

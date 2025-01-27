@@ -189,7 +189,7 @@ export const SlotToken = (props: { network: string, currencyPrice: number, pair:
     const stopEnabled = slotStatus === 'running';
 
     return (
-        <div className='card m-3'>
+        <div className='card m-3 bg-dark'>
 
             {/* image + title  */}
             <div className='d-flex my-1'>
