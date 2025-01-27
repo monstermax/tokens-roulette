@@ -4,9 +4,10 @@ import React, { useRef, useState } from "react";
 
 
 export const WheelOfFortune = React.forwardRef((props, ref) => {
+    const initialSpeedValue = 100;
     const [isSpinning, setIsSpinning] = useState(false);
     const [rotation, setRotation] = useState(0);
-    const [spinSpeed, setSpinSpeed] = useState(100);
+    const [spinSpeed, setSpinSpeed] = useState(initialSpeedValue);
     const intervalRef = useRef<number | null>(null); // Référence pour l'intervalle
 
     const segments = ["Lambo", "Dump", "Moon", "Fomo", "Pump", "Whale"];
@@ -16,7 +17,7 @@ export const WheelOfFortune = React.forwardRef((props, ref) => {
         if (isSpinning) return;
 
         setIsSpinning(true);
-        //setSpinSpeed(100); // Vitesse initiale
+        setSpinSpeed(initialSpeedValue);
 
         intervalRef.current = window.setInterval(() => {
             setRotation((prev) => prev - spinSpeed);

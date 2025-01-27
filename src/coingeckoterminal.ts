@@ -1,8 +1,6 @@
 
-import { networks } from "./config";
-
-import type { NetworkName, Token, TokensPair } from "./types";
-import type { CoingeckoTerminalToken, CoingeckoTerminalTokensPair } from "./coingeckoterminal.types";
+import type { NetworkName, Token } from "./types";
+import type { CoingeckoTerminalToken } from "./coingeckoterminal.types";
 
 
 
