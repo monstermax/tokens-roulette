@@ -1,50 +1,52 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Usage
 
-Currently, two official plugins are available:
+## Run (dev)
+npm run dev
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Build (for prod)
+npm run build
 
-## Expanding the ESLint configuration
+## Run (preprod)
+npm run preview
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Run (prod)
+copy the "dist" folder to your websites hoster
 
-- Configure the top-level `parserOptions` property like this:
+# Description
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 🎰 Tokens Roulette : un projet gamifié autour des crypto-monnaies, combinant simulation et trading en temps réel. 🪙  
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Imagine lancer une roue de la fortune pour acheter/vendre des tokens fictifs ou réels !  
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## 💼 Wallet Virtuel  
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+Actuellement, tu peux interagir avec un portefeuille virtuel pour simuler des trades. Pas besoin de connecter un vrai wallet : idéal pour s'amuser ou tester ses stratégies sans risque. 🤝
+
+## 💸 Comment ça marche ?  
+
+- 🎰 Lancer la roue : Cela simule un achat de token au prix actuel.  
+- 🛑 Arrêter la roue : Cela simule une revente du token, au prix de l'instant.  
+
+Les prix sont récupérés en temps réel via l'API 
+@JupiterExchange
+
+## 🛠 Prochaines étapes ?  
+
+- 🔗 Support des blockchains EVM (Ethereum, BSC, etc.) pour des quotations on-chain.  
+- 🪙 Swaps réels : Utiliser des vrais wallets pour effectuer de vrais trades sur des blockchains.  
+- 🎮 Choix : Jouer avec un portefeuille virtuel ou réel.
+
+## 💡 Pourquoi ce projet ?  
+
+Tokens Roulette, c'est à la fois éducatif et ludique.  
+- Apprendre à utiliser les outils crypto (swaps, paires LP, etc.).  
+- S'amuser à trader dans un environnement sans risque.
+
+##  ⚡️ Vision future  
+
+À terme, Tokens Roulette pourrait devenir une plateforme hybride :  
+- 🎮 Un jeu pour les amateurs de simulation.  
+- 🛠 Un outil pour les traders sérieux, avec des interactions blockchain réelles.
+
+  
