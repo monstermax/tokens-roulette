@@ -20,6 +20,7 @@ export type TokensPair = {
 }
 
 export type Wallet = {
+    name: string,
     network: string,
     privateKey: string,
     address: string,

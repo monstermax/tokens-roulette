@@ -1,6 +1,6 @@
+// SlotToken..tsx
 
-import React, { useEffect, useRef, useState } from "react";
-import { Modal } from 'bootstrap';
+import { useEffect, useRef, useState } from "react";
 
 import { WheelOfFortune } from "./WheelOfFortune";
 import { BearishBar } from "./BearishBar";
@@ -12,13 +12,14 @@ import { buy, sell } from './quote_api'; // QUOTES ONLY
 import type { CurrentGame, GameHistory, SlotStatus, TokensPair } from "./types";
 
 
-export const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensPair, balance: number, setBalance: React.Dispatch<React.SetStateAction<number>>, saveGame: (newGameHistory: GameHistory) => void}) => {
+export const SlotToken = (props: {network: string, currencyPrice: number, pair: TokensPair, balance: number, setBalance: React.Dispatch<React.SetStateAction<number>>, saveGame: (newGameHistory: GameHistory) => void, showEndGameModal: () => void}) => {
     const pair = props.pair;
     const network = props.network;
     const currencyPrice = props.currencyPrice;
     const balance = props.balance;
     const setBalance = props.setBalance;
     const saveGame = props.saveGame;
+    const showEndGameModal = props.showEndGameModal;
 
     const wheelRef = useRef<{ startSpin: () => void, stopSpin: () => void } | null>(null);
     const timerRemainingRef = useRef<number | null>(null);
@@ -170,8 +171,7 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
             saveGame(gameHistory);
 
             // show popup gain
-            const endGameModal = new Modal(document.getElementById('modal-game-end')!, {})
-            endGameModal.show()
+            showEndGameModal();
         }
 
     }, [currentGame]);
@@ -227,8 +227,8 @@ export const SlotToken = (props: {network: string, currencyPrice: number, pair: 
                             <span className="input-group-text">$</span>
                             <input type="number" className="form-control" list="betsValues" aria-label="Dollar amount (with dot and two decimal places)" min={0} step={1} value={amountUsd} onChange={(event) => setAmountUsd(Number(event.target.value))} />
 
-                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>10</button>
-                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>100</button>
+                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(10)}>$10</button>
+                            <button className="btn btn-outline-secondary" onClick={() => setAmountUsd(100)}>$100</button>
 
                             <button
                             onClick={() => startGame()}

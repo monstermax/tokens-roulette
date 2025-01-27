@@ -1,6 +1,6 @@
+// EndGameModal.tsx
 
 import humanTime from 'human-time';
-//const humanTime = (d: Date) => d.toJSON().slice(0, 19).replace('T', ' ');
 
 import { networks } from "./config";
 
@@ -13,7 +13,7 @@ export const EndGameModal = (props: { gamesHistory: GameHistory[], network: stri
 
     return (
         <div id="modal-game-end" className="modal" tabIndex={-1}>
-            <div className="modal-dialog">
+            <div className="modal-dialog modal-lg">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Game History</h5>
@@ -22,32 +22,33 @@ export const EndGameModal = (props: { gamesHistory: GameHistory[], network: stri
 
                     <div className="modal-body" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
 
-                        {[...gamesHistory].reverse().map(gameHistory => {
+                        {[...gamesHistory].reverse().map((gameHistory, index) => {
                             return (
-                                <div key={`${gameHistory.pairAddress}-${gameHistory.buyDate.getTime()}`}>
-
-                                    <ul>
-                                        <li className='token'>
-                                            Token:
-                                            <span className='mx-2'>{gameHistory.tokenName}</span>
+                                <div key={`${gameHistory.pairAddress}-${gameHistory.buyDate.getTime()}`} className="p-3 mb-3 border rounded">
+                                    <ul className="list-unstyled">
+                                        <li className='token mb-2'>
+                                            <strong>Token:</strong>
+                                            <span className='ms-2'>{gameHistory.tokenName}</span>
                                         </li>
-                                        <li className='token'>
-                                            Date:
-                                            <span className='mx-2'>{humanTime(gameHistory.buyDate)}</span>
+                                        <li className='date mb-2'>
+                                            <strong>Date:</strong>
+                                            <span className='ms-2'>{humanTime(gameHistory.buyDate)}</span>
                                         </li>
-                                        <li className='bought'>
-                                            Bought:
-                                            <span className='mx-2'>{Math.round(1000 * gameHistory.buyAmountIn / 1e9) / 1000} {networks[network].symbol}</span>
+                                        <li className='bought mb-2'>
+                                            <strong>Bought:</strong>
+                                            <span className='ms-2'>{Math.round(1000 * gameHistory.buyAmountIn / 1e9) / 1000} {networks[network].symbol}</span>
                                         </li>
-                                        <li className='sold'>
-                                            Sold:
-                                            <span className='mx-2'>{Math.round(1000 * gameHistory.sellAmountOut / 1e9) / 1000} {networks[network].symbol}</span>
+                                        <li className='sold mb-2'>
+                                            <strong>Sold:</strong>
+                                            <span className='ms-2'>{Math.round(1000 * gameHistory.sellAmountOut / 1e9) / 1000} {networks[network].symbol}</span>
                                         </li>
                                         <li className='pnl'>
-                                            PNL:
-                                            <span className='mx-2'>$ {Math.round(100 * gameHistory.diffUsd) / 100}</span>
-                                            <span className='mx-2'>({Math.round(10 * gameHistory.percent) / 10} %)</span>
-                                            <span className='mx-2'>{Math.round(1000 * gameHistory.diffCoin / 1e9) / 1000} {networks[network].symbol}</span>
+                                            <strong>PNL:</strong>
+                                            <span className={`ms-2 ${gameHistory.diffUsd > 0 ? 'text-success' : 'text-danger'}`}>
+                                                $ {Math.round(100 * gameHistory.diffUsd) / 100}
+                                            </span>
+                                            <span className='ms-2'>({Math.round(10 * gameHistory.percent) / 10} %)</span>
+                                            <span className='ms-2'>{Math.round(1000 * gameHistory.diffCoin / 1e9) / 1000} {networks[network].symbol}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -63,4 +64,5 @@ export const EndGameModal = (props: { gamesHistory: GameHistory[], network: stri
             </div>
         </div>
     );
-}
+};
+

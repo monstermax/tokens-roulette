@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
+// App.tsx
+
+import { useEffect, useRef, useState } from 'react'
 
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
@@ -10,6 +12,7 @@ import { fetchCurrencyPrice, fetchTrendsPairs, fetchTrendsTokens } from './dexsc
 import { SlotToken } from './SlotToken.';
 import { EndGameModal } from './EndGameModal';
 import { fetchRecentTokens } from './coingeckoterminal';
+import { Modal } from 'bootstrap';
 
 
 const examplePairs: TokensPair[] = [
@@ -26,6 +29,14 @@ const examplePairs: TokensPair[] = [
 ];
 
 
+const virtualWallet: Wallet = {
+    name: 'Virtual Wallet 01',
+    address: `VirtualWallet_${Date.now()}`,
+    network: 'solana',
+    privateKey: '',
+};
+
+
 async function fetchBalance(network: NetworkName, wallet: Wallet): Promise<number> {
     // TODO
     return 10 * 1e9; // hardcoded balance
@@ -39,7 +50,7 @@ function App() {
     const [currencyPrice, setCurrencyPrice] = useState<number>(0);
     const [tokensList, setTokensList] = useState<Token[]>([]);
     const [pairs, setPairs] = useState<TokensPair[]>(examplePairs);
-    const [wallet, setWallet] = useState<Wallet | null>(null);
+    const [wallet, setWallet] = useState<Wallet | null>(virtualWallet);
     const [balance, setBalance] = useState(0);
     const [isFetching, setIsFetching] = useState(false);
     const [gamesHistory, setGamesHistory] = useState<GameHistory[]>([]);
@@ -55,8 +66,9 @@ function App() {
         setIsFetching(true);
 
         // fetch trends tokens
-        //fetchTrendsTokens(network)
-        fetchRecentTokens(network)
+        const fetchTokens = (network === 'solana') ? fetchTrendsTokens : fetchRecentTokens;
+
+        fetchTokens(network)
             .then((tokens => {
                 //tokens = tokens.filter(token => ! token.capital || token.capital > 1000);
                 setTokensList(tokens);
@@ -73,7 +85,7 @@ function App() {
             .then((tokensPairs => {
 
                 // Filter
-                //tokensPairs = tokensPairs.filter(pair => pair.stats ? pair.stats.txnsM5 > 100 : true);
+                tokensPairs = tokensPairs.filter(pair => pair.stats ? pair.stats.txnsM5 > 50 : true);
 
                 // Sort
                 tokensPairs.sort((a, b) => (a.stats && b.stats) ? b.stats.priceChangeM5 - a.stats.priceChangeM5 : 0);
@@ -84,6 +96,11 @@ function App() {
                 setIsFetching(false);
             })
     };
+
+    const showEndGameModal = () => {
+        const endGameModal = new Modal(document.getElementById('modal-game-end')!, {})
+        endGameModal.show()
+    }
 
 
     useEffect(() => {
@@ -107,7 +124,7 @@ function App() {
 
         // TODO: fetch & setWallet
         if (network) {
-            setWallet({network, address: 'test', privateKey: 'test'})
+            setWallet(virtualWallet)
 
         } else {
             setWallet(null);
@@ -150,26 +167,46 @@ function App() {
                 <div className='alert alert-dark'>
                     <div className='d-flex justify-content-between'>
                         <div>
-                            <h2>Wallet</h2>
+                            <div className='my-1 d-flex'>
+                                <h2 className='m-1 me-3'>Wallet</h2>
 
-                            <div>
-                                <h3>Balance</h3>
-                                <p>
-                                    <span className='me-1'>{Math.round(100 * balance / 1e9) / 100} {currencyName}</span>
-                                    <small className='ms-1'>({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currencyPrice * balance / 1e9)})</small>
-                                </p>
+                                <div className='badge bg-dark'>
+                                    <div className='m-1'>{wallet?.name}</div>
+                                    <div className='m-1 badge'>{wallet?.address}</div>
+                                </div>
+                            </div>
+
+                            <div className='my-1 d-flex'>
+                                <h3 className='m-1 me-3'>Balance</h3>
+
+                                <div className="badge bg-dark">
+                                    <p className='h4'>
+                                        <span className='me-1'>{Math.round(100 * balance / 1e9) / 100} {currencyName}</span>
+
+                                        <small className='ms-1'>({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currencyPrice * balance / 1e9)})</small>
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
                         <div>
-                            <h3>Network</h3>
-                            <select className='form-control' value={network} onChange={(event) => setNetwork(event.target.value)}>
-                                {Object.keys(networks).map(network => {
-                                    return (
-                                        <option key={network} value={network}>{network}</option>
-                                    );
-                                })}
-                            </select>
+                            <div className='my-1'>
+                                <h3 className='m-1'>Network</h3>
+
+                                <select className='form-control bg-dark text-light m-1' value={network} onChange={(event) => setNetwork(event.target.value)}>
+                                    {Object.keys(networks).map(network => {
+                                        return (
+                                            <option key={network} value={network}>{network}</option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+
+                            <div className='my-1'>
+                                <button className='btn btn-outline-secondary' onClick={() => showEndGameModal()}>
+                                    History
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -198,6 +235,7 @@ function App() {
                                     balance={balance}
                                     setBalance={setBalance}
                                     saveGame={saveGame}
+                                    showEndGameModal={showEndGameModal}
                                     />
                             );
                         })}
